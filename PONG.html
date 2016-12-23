@@ -1,0 +1,178 @@
+
+<html>
+    <head>
+        <title>PONG</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+    </head>
+    
+    <body>
+        <script>
+        document.addEventListener("keydown",keyDown,false);
+        document.addEventListener("keyup",keyUp,false);
+        var HEIGHT=500,WIDTH=650;
+        var ctx,canvas;
+        var UP=38,DOWN=40,ballSpeed=5;
+        var upPressed=false,downPressed=false;
+        paddle={
+        	x:null,
+        	y:null,
+        	paddleSpeed:null,
+        	width:null,
+        	height:null,
+        	speed:null,
+        	set: function(x,y,width,height,paddleSpeed)
+        	{
+        		this.x =x;
+        		this.y =y;
+        		this.width = width;
+        		this.height = height;
+                        this.paddleSpeed = paddleSpeed;
+        	},
+			update: function()
+			{
+                            if(upPressed && paddle.y>0)
+                            {
+                                paddle.y-=10;
+                            }
+                            if(downPressed && paddle.y + paddle.height<=HEIGHT){
+                                paddle.y+=10;
+                            }
+			},
+			draw : function()
+			{
+				ctx.fillRect(this.x,this.y,this.width,this.height);
+			}
+        };
+        ai={
+        	x:null,
+        	y:null,
+        	paddleSpeed:null,
+        	width:null,
+        	height:null,
+        	speed:null,
+        	set: function(x,y,width,height,paddleSpeed)
+        	{
+        		this.x =x;
+        		this.y =y;
+        		this.width = width;
+        		this.height = height;
+                        this.paddleSpeed = 10;
+        	},
+                update: function(){
+                   this.y = (ball.y);
+                   
+                },
+		draw : function()
+		{
+		ctx.fillRect(this.x,this.y,this.width,this.height);
+		}
+
+        };
+        ball={
+        	x:null,
+        	y:null,
+                side:null,
+                speedX:null,
+                speedY:null,
+                set : function(x,y,side,speedX,speedY)
+                {
+                    this.x = x;
+                    this.y = y;
+                    this.side = side;
+                    this.speedX = speedX;
+                    this.speedY = speedY;
+                },
+                update : function()
+                {
+                    if(this.y<0||(this.y+this.side>=HEIGHT))
+                    {
+                        this.speedY = - this.speedY;
+                    }
+                    // paddle collision
+                    if(((this.x==paddle.x-ai.width)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
+                    ||((this.x==ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y)))
+                    {
+                        this.speedX = - this.speedX;
+                    }
+                    this.y += this.speedY;
+                    this.x +=this.speedX;
+                    
+                    if(this.x>WIDTH || this.x<0)
+                        init();
+                },
+                draw: function()
+                {
+                   ctx.fillRect(this.x,this.y,this.side,this.side); 
+                }
+
+        };
+        function main()
+        {
+        //canvas creation
+            canvas = document.createElement("canvas");
+            canvas.width = WIDTH;
+		canvas.height = HEIGHT;
+		ctx = canvas.getContext("2d");
+		window.document.body.appendChild(canvas);
+            init();
+            var loop = function()
+            {
+              update();
+              draw();
+              window.requestAnimationFrame(loop,canvas);
+            };
+            window.requestAnimationFrame(loop,canvas);
+        }
+                
+        function init(){
+        // init paddle
+            paddle.set((WIDTH-20)-10,(HEIGHT - 110)/2,20,110,10);
+            // init ai
+            ai.set(10,(HEIGHT - 110)/2,20,110,10);
+            //ball
+            ball.set((WIDTH-20)/2,(HEIGHT-20)/2,20,ballSpeed,ballSpeed);
+        }
+        function update(){
+            //update the paddle
+            paddle.update();
+            ball.update();
+            ai.update();
+        }
+        
+        function draw(){
+            ctx.clearRect(0,0,WIDTH,HEIGHT);
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            ctx.fillStyle ="white";
+            //draw paddle
+            paddle.draw();
+            //draw ai
+            ai.draw();
+            //draw ball
+            ball.draw();
+            // Mid
+            for(var v =0;v<32;v++)
+            {
+                ctx.fillRect((WIDTH-8)/2,v*0 + (2*(v)*8),8,8);
+            }
+        }
+        function keyDown(e)
+        {
+            if(e.keyCode===UP)
+                upPressed = true;
+            if(e.keyCode===DOWN)
+                downPressed =true;
+        }
+        function keyUp(e)
+        {
+            if(e.keyCode===UP)
+                upPressed = false;
+            if(e.keyCode===DOWN)
+                downPressed =false;
+        }
+        main();
+        </script>
+    </body>
+</html>
