@@ -16,14 +16,14 @@
 	}
 	</style>
     </head>
-    
+
     <body>
         <script>
         document.addEventListener("keydown",keyDown,false);
         document.addEventListener("keyup",keyUp,false);
         var HEIGHT=500,WIDTH=600;
         var ctx,canvas;
-        var UP=38,DOWN=40,ballSpeed=10,smash=0;
+        var UP=38,DOWN=40,ballSpeed=10,smash=10,smashSpeed=1.5;
         var upPressed=false,downPressed=false;
         paddle={
         	x:null,
@@ -71,10 +71,14 @@
                         this.paddleSpeed = 10;
         	},
                 update: function(){
-                  // if(this.y>0 && this.y+this.height<=HEIGHT)
-                        this.y = (ball.y)+(ball.side-this.height)/2;
-                   console.log(ball.y+"  "+this.y);
-                    
+                    if(this.y>=0 && this.y+this.height<=HEIGHT)
+                    {
+                      //this.y = (ball.y + (ball.side-this.height)/2);
+                      this.y = ball.y-ball.side;
+                    }
+                    this.y =this.y<0?0:this.y;
+                    this.y =(this.y+this.height)>HEIGHT?(HEIGHT-this.height):this.y;
+                    console.log(this.y +"  "+ ball.y);
                 },
 		draw : function()
 		{
@@ -102,27 +106,42 @@
                     {
                         this.speedY = - this.speedY;
                     }
-                    // paddle collision
-                    // change this
-                    if(((this.x+this.side>paddle.x)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
-                    ||((this.x<ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y)))
+                    if((this.x+this.side>paddle.x)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
+                    {
+                      this.speedX = - this.speedX;
+                      var mid = paddle.y + paddle.height/2,ballMid= this.y + this.side/2;
+                      if(ballMid>=mid)
+                          this.speedY = 3*Math.cos((Math.PI)/360);
+                      else
+                          this.speedY = -3*Math.cos((Math.PI)/360);
+                      //smash
+                      if(this.y>paddle.y+paddle.height-smash || paddle.y + smash<this.y+this.side)
+                        this.speedX = ((this.speedX/Math.abs(this.speedX))*smashSpeed*ballSpeed);
+                      else
+                        this.speedX =ballSpeed;
+                    }
+                    else if((this.x<ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y))
                     {
                         this.speedX = - this.speedX;
-                        var mid = (paddle.x + paddle.height)/2;
-                        if(this.x +this.side>mid)
-                            this.speedY = 2*Math.cos((45 * Math.PI)/180);
+                        var mid = ai.x + ai.height/2,ballMid= this.y + this.side/2;
+                        if(this.x +this.side>=mid)
+                            this.speedY = 3*Math.cos((Math.PI)/360);
                         else
-                            this.speedY = -2*Math.cos((45 * Math.PI)/180);
+                            this.speedY = -3*Math.cos((Math.PI)/360);
+                        if(this.y>ai.y+ai.height-smash || ai.y + smash<this.y+this.side)
+                            this.speedX = (this.speedX/Math.abs(this.speedX))*smashSpeed*ballSpeed;
+                        else
+                            this.speedX =ballSpeed;
                     }
                     this.y += this.speedY;
-                    this.x +=this.speedX;
-                    
+                    this.x += this.speedX;
+
                     if(this.x>WIDTH || this.x<0)
                         init();
                 },
                 draw: function()
                 {
-                   ctx.fillRect(this.x,this.y,this.side,this.side); 
+                   ctx.fillRect(this.x,this.y,this.side,this.side);
                 }
 
         };
@@ -143,7 +162,7 @@
             };
             window.requestAnimationFrame(loop,canvas);
         }
-                
+
         function init(){
         // init paddle
             paddle.set((WIDTH-20)-10,(HEIGHT - 110)/2,20,110,10);
@@ -158,7 +177,7 @@
             ball.update();
             ai.update();
         }
-        
+
         function draw(){
             ctx.clearRect(0,0,WIDTH,HEIGHT);
             ctx.fillStyle = "black";
