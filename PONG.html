@@ -23,7 +23,7 @@
         document.addEventListener("keyup",keyUp,false);
         var HEIGHT=500,WIDTH=600;
         var ctx,canvas;
-        var UP=38,DOWN=40,ballSpeed=10,smash=10,smashSpeed=1.5;
+        var UP=38,DOWN=40,ballSpeed=10,smash=35,smashSpeed=1.4;
         var upPressed=false,downPressed=false;
         paddle={
         	x:null,
@@ -109,29 +109,29 @@
                     if((this.x+this.side>paddle.x)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
                     {
                       this.speedX = - this.speedX;
-                      var mid = paddle.y + paddle.height/2,ballMid= this.y + this.side/2;
+                      var mid = paddle.y + paddle.height/2,ballMid= this.y + this.side/2,phi = ((this.y+this.side)/(paddle.y+paddle.height));
                       if(ballMid>=mid)
-                          this.speedY = 3*Math.cos((Math.PI)/360);
+                          this.speedY = 4*Math.cos((Math.PI)*2);
                       else
-                          this.speedY = -3*Math.cos((Math.PI)/360);
+                          this.speedY = 4*Math.cos((Math.PI));
                       //smash
-                      if(this.y>paddle.y+paddle.height-smash || paddle.y + smash<this.y+this.side)
+                      if(this.y>paddle.y+paddle.height-smash || (paddle.y + smash)>=this.y+this.side)
                         this.speedX = ((this.speedX/Math.abs(this.speedX))*smashSpeed*ballSpeed);
                       else
-                        this.speedX =ballSpeed;
+                        this.speedX = (this.speedX/Math.abs(this.speedX))*ballSpeed;
                     }
                     else if((this.x<ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y))
                     {
                         this.speedX = - this.speedX;
                         var mid = ai.x + ai.height/2,ballMid= this.y + this.side/2;
                         if(this.x +this.side>=mid)
-                            this.speedY = 3*Math.cos((Math.PI)/360);
+                            this.speedY = 4*Math.cos((Math.PI)*2);
                         else
-                            this.speedY = -3*Math.cos((Math.PI)/360);
-                        if(this.y>ai.y+ai.height-smash || ai.y + smash<this.y+this.side)
+                            this.speedY = 4*Math.cos((Math.PI));
+                        if(this.y>ai.y+ai.height-smash || ai.y + smash>=this.y+this.side)
                             this.speedX = (this.speedX/Math.abs(this.speedX))*smashSpeed*ballSpeed;
                         else
-                            this.speedX =ballSpeed;
+                            this.speedX = (this.speedX/Math.abs(this.speedX))*ballSpeed;
                     }
                     this.y += this.speedY;
                     this.x += this.speedX;
