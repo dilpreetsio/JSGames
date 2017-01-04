@@ -1,0 +1,197 @@
+<html>
+    <head>
+        <title>Space Invaders</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <script>
+            var HEIGHT=550,WIDTH=550;
+            var canvas,ctx;
+            var sWidth =45,sHeight =35,shipMove=5;
+            var KEY_LEFT = 37,KEY_RIGHT = 39,KEY_SHOOT=32;
+            var left=false,right=false,shoot=false;
+            var aWidth = 35,aHeight = 35,shootSide=10,alientCount = 10,alienRows=4,drawOffsetX=30,drawOffsetY=30;
+
+            var shots =[];
+            var alienArray = new Array(alienRows),alientObjs = new Array(alienRows);
+            //add listners
+            document.addEventListener("keydown",keyDown,false);
+            document.addEventListener("keyup",keyUp,false);
+            ship ={
+                x:null,
+                y:null,
+                width:null,
+                height:null,
+                move:null,
+                fact:20,
+                set: function(x,y,width,height,move){
+                    this.x = x;
+                    this.y = y;
+                    this.width = width;
+                    this.height = height;
+                    this.move = move;
+                },
+                draw:function(){
+                    ctx.fillRect(this.x,this.y+this.fact,this.width,this.height-this.fact);
+                    ctx.fillRect(this.x+this.fact/2,this.y+this.fact/2,this.width-this.fact,this.height-this.fact)
+                    ctx.fillRect(this.x+this.fact,this.y,this.width-this.fact*2,this.height-this.fact)
+                },
+                update:function(){
+                        if(left  && this.x>0)
+                            this.x-=this.move;
+                        if(right && this.x+this.width<WIDTH)
+                            this.x+=this.move;
+                        if(shoot)
+                        { 
+                            var va = Object.create(shot);
+                            va.set(this.x+this.fact,this.y,5,5);
+                            shots.push(va);
+                            shoot = false;
+                        }
+                }
+            };
+            alien ={
+                x:null,
+                y:null,
+                width:null,
+                height:null,
+                set: function(x,y,width,height){
+                    this.x = x;
+                    this.y = y;
+                    this.width = width;
+                    this.height = height;
+                },
+                draw:function(){
+                    ctx.fillRect(this.x,this.y,this.width,this.height);
+                    ctx.fillStyle='black';
+                    ctx.fillRect(this.x+(this.width/5),this.y+(this.width/4),this.width/4,this.height/4);
+                    ctx.fillRect(this.x+(this.width/2),this.y+(this.width/4),this.width/4,this.height/4);
+                    ctx.fillRect(this.x+(this.width/3)-1,this.y+(this.width/2)+5,this.width/3,this.height/4);
+                    ctx.fillStyle='white';
+                
+                },
+                update:function(){},
+                clear : function ()
+                {
+                    ctx.clearRect(this.x,this.y,this.width,this.height);
+                }
+            };
+            shot ={
+                x:null,
+                y:null,
+                side:null,
+                speed:null,
+                set: function (x,y,side,speed)
+                {
+                    this.x = x;
+                    this.y = y;
+                    this.side = side;
+                    this.speed = speed;
+                },
+                update : function ()
+                {
+                    this.y-=this.speed;
+                    if(this.y+this.side<0)
+                    {   
+                        this.clear();
+                        removeShot();
+                    }
+                },
+                draw: function ()
+                {
+                    ctx.fillRect(this.x,this.y,this.side,this.side);
+                },
+                clear : function ()
+                {
+                    ctx.clearRect(this.x,this.y,this.width,this.height);
+                }
+            };
+            // dec dynamic objects
+            //constructors
+            function alien(){}
+            
+            function main(){
+                canvas = document.createElement('canvas');
+                canvas.width = WIDTH;
+                canvas.height = HEIGHT;
+                ctx = canvas.getContext('2d');
+                document.body.appendChild(canvas);
+                init();
+                var loop = function()
+                {
+                    update();
+                    draw();
+                    window.requestAnimationFrame(loop,canvas);
+                };
+                window.requestAnimationFrame(loop,canvas);
+            }
+            function init(){
+                shots =[];
+                //init ship
+                ship.set((WIDTH-sWidth)/2,HEIGHT-(sHeight+10),sWidth,sHeight,shipMove);
+                var obj = Object.create(alien);
+                // init aliens
+                for(var v =0;v<alienArray.length;v++){
+                    alienArray[v] = new Array(alientCount);
+                    alientObjs[v] = new Array(alientCount);
+                }
+                for(var i =0;i<alienArray.length;i++){
+                    for(var j=0;j<alienArray[i].length;j++){
+                        alienArray[i][j]=1;
+                        alientObjs[i][j]=Object.create(alien);
+                        alientObjs[i][j].set(50*j +drawOffsetX ,50*i +drawOffsetY,aWidth,aHeight);
+                    }
+                }
+            }
+            function update(){
+                ship.update();
+                shots.forEach(function (d){
+                    d.update();
+                });
+            }
+            function draw(){
+                // background
+                ctx.clearRect(0,0,WIDTH,HEIGHT);
+                ctx.fillStyle ='black';
+                ctx.fillRect(0,0,WIDTH,HEIGHT);
+                ctx.fillStyle = 'white';
+                // draw aliens
+                for(var i =0;i<alienArray.length;i++){
+                    for(var j=0;j<alienArray[i].length;j++){
+                     if(alienArray[i][j]===1){
+                         alientObjs[i][j].draw();
+                        }
+                     }
+                }
+                //draw ship
+                shots.forEach(function (d){
+                    console.log(d.y);
+                    d.draw();
+                });
+                ship.draw();
+            }
+            function keyDown(e){
+                if(e.keyCode===KEY_LEFT)
+                    left=true;
+                if(e.keyCode===KEY_RIGHT)
+                    right=true;
+                if(e.keyCode===KEY_SHOOT)
+                    shoot=true;
+            }
+            function keyUp(e){
+                if(e.keyCode===KEY_LEFT)
+                    left=false;
+                if(e.keyCode===KEY_RIGHT)
+                    right=false;
+                if(e.keyCode===KEY_SHOOT)
+                    shoot=false;
+            }
+            function removeShot()
+            {
+              //  shots.pop();
+            }
+            main();
+        </script>
+    </body>
+</html>

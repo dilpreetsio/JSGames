@@ -4,16 +4,26 @@
         <title>PONG</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
+        <style>
+	canvas {
+		display: block;
+		position: absolute;
+		margin: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+	}
+	</style>
     </head>
     
     <body>
         <script>
         document.addEventListener("keydown",keyDown,false);
         document.addEventListener("keyup",keyUp,false);
-        var HEIGHT=500,WIDTH=650;
+        var HEIGHT=500,WIDTH=600;
         var ctx,canvas;
-        var UP=38,DOWN=40,ballSpeed=5;
+        var UP=38,DOWN=40,ballSpeed=10,smash=0;
         var upPressed=false,downPressed=false;
         paddle={
         	x:null,
@@ -61,8 +71,10 @@
                         this.paddleSpeed = 10;
         	},
                 update: function(){
-                   this.y = (ball.y);
-                   
+                  // if(this.y>0 && this.y+this.height<=HEIGHT)
+                        this.y = (ball.y)+(ball.side-this.height)/2;
+                   console.log(ball.y+"  "+this.y);
+                    
                 },
 		draw : function()
 		{
@@ -91,10 +103,16 @@
                         this.speedY = - this.speedY;
                     }
                     // paddle collision
-                    if(((this.x==paddle.x-ai.width)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
-                    ||((this.x==ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y)))
+                    // change this
+                    if(((this.x+this.side>paddle.x)&&(this.y<paddle.y+paddle.height && this.y+this.side >=paddle.y))
+                    ||((this.x<ai.x+ai.width)&&(this.y<ai.y+ai.height && this.y+this.side >=ai.y)))
                     {
                         this.speedX = - this.speedX;
+                        var mid = (paddle.x + paddle.height)/2;
+                        if(this.x +this.side>mid)
+                            this.speedY = 2*Math.cos((45 * Math.PI)/180);
+                        else
+                            this.speedY = -2*Math.cos((45 * Math.PI)/180);
                     }
                     this.y += this.speedY;
                     this.x +=this.speedX;
@@ -132,7 +150,7 @@
             // init ai
             ai.set(10,(HEIGHT - 110)/2,20,110,10);
             //ball
-            ball.set((WIDTH-20)/2,(HEIGHT-20)/2,20,ballSpeed,ballSpeed);
+            ball.set((WIDTH-20)/2,(HEIGHT-20)/2,20,ballSpeed,0);
         }
         function update(){
             //update the paddle
