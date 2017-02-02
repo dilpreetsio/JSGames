@@ -1,0 +1,95 @@
+<html>
+<body>
+  <script type="text/javascript">
+    var WIDTH=500,HEIGHT=500;
+    var ctx,canvas,ballSpeed=10;
+
+    // event listeners
+    document.addEventListener("keyUp",keyUp,false);
+    document.addEventListener("keyDown",keyDown,false);
+    // objects
+    paddle ={
+      x:null,
+      y:null,
+      width:null,
+      height:null,
+      move:null,
+      set: function (x,y,width,height,move){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.move = move;
+      },
+      draw : function(){
+        ctx.fillStyle='white';
+        ctx.fillRect(this.x,this.y,this.width,this.height);
+        ctx.fillStyle='black';
+      },
+      update : function(){
+      }
+    };
+
+    ball ={
+        x:null,
+        y:null,
+        side:null,
+        speedX:null,
+        speedY:null,
+        set: function (x,y,side,speedX,speedY){
+          this.x = x;
+          this.y = y;
+          this.side = side;
+          this.speedX = speedX;
+          this.speedY = speedY;
+        },
+        draw : function(){
+          ctx.fillStyle='white';
+          ctx.fillRect(this.x,this.y,this.side,this.side);
+          ctx.fillStyle='black';
+        },
+        update : function(){
+          console.log("YO");
+          this.x += this.speedX;
+          this.y += this.speedY;
+        }
+    };
+
+    function main(){
+      canvas = document.createElement('canvas');
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+      ctx = canvas.getContext('2d');
+      window.document.body.appendChild(canvas);
+      init();
+      var loop = function(){
+        update();
+        draw();
+        window.requestAnimationFrame(loop,canvas);
+      };
+      window.requestAnimationFrame(loop,canvas);
+    }
+
+    function init(){
+      paddle.set(WIDTH-35,100,25,150,10);
+      ball.set(100,100,20,10,10);
+    }
+
+    function update(){
+      ball.update();
+      paddle.update();
+    }
+
+    function draw(){
+      ctx.clearRect(0,0,WIDTH,HEIGHT);
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ball.draw();
+      paddle.draw();
+    }
+    function keyUp(e){}
+    function keyDown(e){}
+    main();
+  </script>
+</body>
+</html>
